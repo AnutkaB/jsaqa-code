@@ -1,22 +1,35 @@
 const { test, expect } = require("@playwright/test");
+const { login, pass } = require("../user.js");
 
-test("test", async ({ page }) => {
-  // Go to https://netology.ru/free/management#/
-  await page.goto("https://netology.ru/free/management#/");
+test("Успешная авторизация", async ({ page }) => {  
+  await page.goto("https://netology.ru");
+  await page.screenshot({path: `./screenshot/screenshot-success1.png`});
+  await page.click('text=Войти');
+  await page.screenshot({path: `./screenshot/screenshot-success2.png`});
+  await expect(page).toHaveURL("https://netology.ru/?modal=sign_in");
+  
+  await page.click('[placeholder="Email"]');
+  await page.fill('[placeholder="Email"]', login);
+  await page.click('[placeholder="Пароль"]');
+  await page.fill('[placeholder="Пароль"]', pass);  
+  await page.click('[data-testid="login-submit-btn"]');
+  await page.screenshot({path: `./screenshot/screenshot-success3.png`});
+  await expect(page.getByRole('heading', { name: 'Моё обучение' })).toBeVisible();  
+});
 
-  // Click a
-  await page.click("a");
-  await expect(page).toHaveURL("https://netology.ru/");
-
-  // Click text=Учиться бесплатно
-  await page.click("text=Учиться бесплатно");
-  await expect(page).toHaveURL("https://netology.ru/free");
-
-  page.click("text=Бизнес и управление");
-
-  // Click text=Как перенести своё дело в онлайн
-  await page.click("text=Как перенести своё дело в онлайн");
-  await expect(page).toHaveURL(
-    "https://netology.ru/programs/kak-perenesti-svoyo-delo-v-onlajn-bp"
-  );
+test("Неуспешная авторизация", async ({ page }) => {  
+  await page.goto("https://netology.ru");
+  await page.screenshot({path: `./screenshot/screenshot-unsuccess1.png`});
+  
+  await page.click('text=Войти');
+  await page.screenshot({path: `./screenshot/screenshot-unsuccess2.png`});
+  await expect(page).toHaveURL("https://netology.ru/?modal=sign_in");
+  
+  await page.click('[placeholder="Email"]');
+  await page.fill('[placeholder="Email"]', 'login123@mail.ru');
+  await page.click('[placeholder="Пароль"]');
+  await page.fill('[placeholder="Пароль"]', "pass010");  
+  await page.click('[data-testid="login-submit-btn"]');
+  await page.screenshot({path: `./screenshot/screenshot-unsuccess3.png`});
+  await expect(page.locator('[data-testid="login-error-hint"]')).toContainText("Вы ввели неправильно логин или пароль")
 });
