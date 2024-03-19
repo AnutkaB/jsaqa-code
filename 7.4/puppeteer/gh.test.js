@@ -15,13 +15,13 @@ describe("Github page tests", () => {
     await firstLink.click();
     await page.waitForSelector('h1');
     const title2 = await page.title();
-    expect(title2).toEqual('GitHub: Where the world builds software · GitHub');
-  });
+    expect(title2).toEqual('GitHub for teams · Build like the best teams on the planet · GitHub', { timeout: 90000 });
+  }, 100000);
 
   test("The first link attribute", async () => {
     const actual = await page.$eval("a", link => link.getAttribute('href') );
     expect(actual).toEqual("#start-of-content");
-  });
+  }, 100000);
 
   test("The page contains Sign in button", async () => {
     const btnSelector = ".btn-large-mktg.btn-mktg";
@@ -29,6 +29,32 @@ describe("Github page tests", () => {
       visible: true,
     });
     const actual = await page.$eval(btnSelector, link => link.textContent);
-    expect(actual).toContain("Sign up for free")
-  });
+    expect(actual).toContain("Get started with Team")
+  }, 60000);
+});
+
+
+describe("Github page title tests", () => {
+  beforeEach(async () => {
+    page = await browser.newPage();
+    await page.goto("https://github.com/");
+  }, 60000);
+
+  test("features/actions", async () => {
+    await page.goto("https://github.com/features/actions");
+    const titleFeatures = await page.title();
+    expect(titleFeatures).toEqual("Features • GitHub Actions · GitHub");
+  }, 30000);
+
+  test("features/packages", async () => {
+    await page.goto("https://github.com/features/packages");
+    const titleCodespace = await page.title();
+    expect(titleCodespace).toEqual('GitHub Packages: Your packages, at home with their code · GitHub')
+  }, 30000);
+
+  test("features/codespaces", async () => {
+    await page.goto("https://github.com/features/codespaces");
+    const titlePricing = await page.title();
+    expect(titlePricing).toEqual('GitHub Codespaces · GitHub')
+  }, 30000);  
 });
