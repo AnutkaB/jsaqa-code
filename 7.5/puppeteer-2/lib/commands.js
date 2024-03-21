@@ -1,4 +1,5 @@
 module.exports = {
+  //функция кликает по элементу
   clickElement: async function (page, selector) {
     try {
       await page.waitForSelector(selector);
@@ -7,6 +8,7 @@ module.exports = {
       throw new Error(`Selector is not clickable: ${selector}`);
     }
   },
+  //функция берет текст из элемента
   getText: async function (page, selector) {
     try {
       await page.waitForSelector(selector);
@@ -14,15 +16,5 @@ module.exports = {
     } catch (error) {
       throw new Error(`Text is not available for selector: ${selector}`);
     }
-  },
-  putText: async function (page, selector, text) {
-    try {
-      const inputField = await page.$(selector);
-      await inputField.focus();
-      await inputField.type(text);
-      await page.keyboard.press("Enter");
-    } catch (error) {
-      throw new Error(`Not possible to type text for selector: ${selector}`);
-    }
-  },
+  }
 };

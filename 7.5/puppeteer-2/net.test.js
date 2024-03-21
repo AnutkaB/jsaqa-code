@@ -1,5 +1,5 @@
+//импортируем функции из модулей lib
 const { clickElement, putText, getText } = require("./lib/commands.js");
-const { generateName } = require("./lib/util.js");
 
 let page;
 
@@ -12,44 +12,79 @@ afterEach(() => {
   page.close();
 });
 
-describe("Netology.ru tests", () => {
+describe("Тест приложения Идем в кино", () => {
   beforeEach(async () => {
     page = await browser.newPage();
-    await page.goto("https://netology.ru");
+    await page.goto("https://qamid.tmweb.ru/client/index.php");
+    await clickElement(page, "body > nav > a:nth-child(2)"); //выбор следующего дня
   });
 
-  test("The first test'", async () => {
-    const title = await page.title();
-    console.log("Page title: " + title);
-    await clickElement(page, "header a + a");
-    const title2 = await page.title();
-    console.log("Page title: " + title2);
-    const pageList = await browser.newPage();
-    await pageList.goto("https://netology.ru/navigation");
-    await pageList.waitForSelector("h1");
+  test ("Бронирование свободного места на завтра первый сеанс'", async () => {    
+    await clickElement(
+      page,
+      "body > main > section:nth-child(1) > div:nth-child(2) > ul > li:nth-child(1)"
+    ); //первый фильм, первое время (Зверополис, Зал 1, 00:00)
+    await clickElement(
+      page,
+      "body > main > section > div.buying-scheme > div.buying-scheme__wrapper > div:nth-child(1) > span:nth-child(1)"
+    ); // выбор места
+    await clickElement(page, "body > main > section > button"); //нажать кнопка "Забронировать"
+
+    //проверка перехода на следующую страницу
+    const bookingTickets = "Вы выбрали билеты:";
+    const actualBookingTickets = await getText(
+      page,
+      "body > main > section > header > h2"
+    );
+    expect(actualBookingTickets).toContain(bookingTickets);
+
+/*    await clickElement(page, "body > main > section > div > button"); //нажать кнопку "Получить код бронирования"
+
+    //проверка перехода на следующую страницу
+    const elTicket = "Электронный билет";
+    const actualElTicket = await getText(
+      page,
+      "body > main > section > header > h2"
+    );
+    expect(actualElTicket).toContain(elTicket);*/
   });
 
-  test("The first link text 'Медиа Нетологии'", async () => {
-    const actual = await getText(page, "header a + a");
-    expect(actual).toContain("Медиа Нетологии");
-  });
+  test("Бронирование VIP места на завтра первый сеанс", async () => {    
+    await clickElement(
+      page,
+      "body > main > section:nth-child(1) > div:nth-child(2) > ul > li:nth-child(1)"
+    ); //первый фильм, первое время (Зверополис, Зал 1, 00:00)
+    await clickElement(
+      page,
+      "body > main > section > div.buying-scheme > div.buying-scheme__wrapper > div:nth-child(4) > span.buying-scheme__chair.buying-scheme__chair_vip"
+    ); // выбор места
+    await clickElement(page, "body > main > section > button"); //нажать кнопка "Забронировать"
 
-  test("The first link leads on 'Медиа' page", async () => {
-    await clickElement(page, "header a + a");
-    const actual = await getText(page, ".logo__media");
-    await expect(actual).toContain("Медиа");
+    //проверка перехода на следующую страницу
+    const bookingTickets = "Вы выбрали билеты:";
+    const actualBookingTickets = await getText(
+      page,
+      "body > main > section > header > h2"
+    );
+    expect(actualBookingTickets).toContain(bookingTickets);
+
+    /*await clickElement(page, "body > main > section > div > button"); //нажать кнопку "Получить код бронирования"
+
+    //проверка перехода на следующую страницу
+    const elTicket = "Электронный билет";
+    const actualElTicket = await getText(
+      page,
+      "body > main > section > header > h2"
+    );
+    expect(actualElTicket).toContain(elTicket);*/
   });
 });
 
-test("Should look for a course", async () => {
-  await page.goto("https://netology.ru/navigation");
-  await putText(page, "input", "тестировщик");
-  const actual = await page.$eval("a[data-name]", (link) => link.textContent);
-  const expected = "Тестировщик ПО";
-  expect(actual).toContain(expected);
-});
-
-test("Should show warning if login is not email", async () => {
-  await page.goto("https://netology.ru/?modal=sign_in");
-  await putText(page, 'input[type="email"]', generateName(5));
+test("Нельзя купить билет на прошедший сеанс", async () => {
+  const position = "body > main > section:nth-child(1) > div:nth-child(2) > ul > li > a"; // текущая дата, первый фильм, сеанс 00:00 
+  expect(() =>
+    clickElement(page, position).toThrowError(
+      "Selector is not clickable: ${position}"
+    )
+  );
 });
